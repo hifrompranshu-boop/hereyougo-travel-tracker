@@ -103,8 +103,13 @@ export function CitiesStep({ cities, onChange }: CitiesStepProps) {
         ))}
       </div>
 
-      <Button type="button" variant="secondary" onClick={addCity} className="w-full">
-        <Plus className="h-4 w-4" />
+      <Button
+        type="button"
+        variant="secondary"
+        onClick={addCity}
+        className="w-full border-[var(--border-strong)] text-foreground dark:border-white/25 dark:bg-[#1e262e] dark:text-white"
+      >
+        <Plus className="h-4 w-4" strokeWidth={2.4} />
         Add another city
       </Button>
     </div>
@@ -131,7 +136,10 @@ function CityCard({
   const wrapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setQuery(city.name);
+    if (city.name !== query) {
+      setQuery(city.name);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only sync when parent city name changes externally
   }, [city.name]);
 
   useEffect(() => {
@@ -144,21 +152,36 @@ function CityCard({
       setSuggestions([]);
       return;
     }
+    const ac = new AbortController();
     const timer = setTimeout(async () => {
-      const res = await fetch(`/api/places/search?q=${encodeURIComponent(query)}`);
-      const data = await res.json();
-      setSuggestions(
-        (data.places ?? []).map(
-          (p: { placeId: string; name: string; lat: number; lng: number }) => ({
-            placeId: p.placeId,
-            name: p.name,
-            lat: p.lat,
-            lng: p.lng,
-          })
-        )
-      );
+      try {
+        const res = await fetch(
+          `/api/places/search?q=${encodeURIComponent(query)}`,
+          { signal: ac.signal }
+        );
+        if (!res.ok) return;
+        const data = await res.json();
+        setSuggestions(
+          (data.places ?? []).map(
+            (p: { placeId: string; name: string; lat: number; lng: number }) => ({
+              placeId: p.placeId,
+              name: p.name,
+              lat: p.lat,
+              lng: p.lng,
+            })
+          )
+        );
+        setFocused(true);
+      } catch (err) {
+        if ((err as Error).name !== "AbortError") {
+          console.error("City search failed", err);
+        }
+      }
     }, 280);
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      ac.abort();
+    };
   }, [query]);
 
   useEffect(() => {
@@ -185,10 +208,10 @@ function CityCard({
           <button
             type="button"
             onClick={onRemove}
-            className="rounded-lg p-2 text-muted hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30"
+            className="rounded-lg p-2 text-foreground/70 hover:bg-red-50 hover:text-red-600 dark:text-foreground/85 dark:hover:bg-red-950/40 dark:hover:text-red-400"
             aria-label="Remove city"
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-4 w-4" strokeWidth={2.25} />
           </button>
         )}
       </div>
@@ -199,7 +222,11 @@ function CityCard({
             Destination
           </label>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-card-muted" />
+            <Search
+              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-accent dark:text-[#99f6e4]"
+              strokeWidth={2.5}
+              aria-hidden
+            />
             <input
               value={query}
               onFocus={() => setFocused(true)}
@@ -218,34 +245,42 @@ function CityCard({
             />
           </div>
           {focused && suggestions.length > 0 && (
-            <div className="glass-panel absolute z-20 mt-1 w-full overflow-hidden rounded-xl shadow-glass">
+            <ul
+              role="listbox"
+              className="absolute z-30 mt-1 max-h-64 w-full overflow-y-auto rounded-xl border border-stone-300 bg-white py-1 shadow-2xl ring-1 ring-black/10 dark:border-white/30 dark:bg-[#36424e] dark:shadow-[0_12px_40px_rgba(0,0,0,0.75)] dark:ring-white/20"
+            >
               {suggestions.map((s) => (
-                <button
-                  key={s.placeId}
-                  type="button"
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => {
-                    skipRef.current = true;
-                    setQuery(s.name);
-                    setSuggestions([]);
-                    setFocused(false);
-                    onChange(
-                      {
-                        name: s.name,
-                        placeId: s.placeId,
-                        lat: s.lat,
-                        lng: s.lng,
-                      },
-                      false
-                    );
-                  }}
-                  className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-card-fg hover:bg-accent/10"
-                >
-                  <MapPin className="h-4 w-4 text-accent" />
-                  {s.name}
-                </button>
+                <li key={s.placeId} role="option">
+                  <button
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => {
+                      skipRef.current = true;
+                      setQuery(s.name);
+                      setSuggestions([]);
+                      setFocused(false);
+                      onChange(
+                        {
+                          name: s.name,
+                          placeId: s.placeId,
+                          lat: s.lat,
+                          lng: s.lng,
+                        },
+                        false
+                      );
+                    }}
+                    className="flex w-full items-center gap-3 px-3 py-2.5 text-left text-sm text-stone-900 transition-colors hover:bg-teal-50 focus-visible:bg-teal-50 focus-visible:outline-none dark:text-white dark:hover:bg-white/12 dark:focus-visible:bg-white/12"
+                  >
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-teal-600 text-white dark:bg-teal-400 dark:text-[#0f172a]">
+                      <MapPin className="h-4 w-4" strokeWidth={2.5} />
+                    </span>
+                    <span className="min-w-0 flex-1 font-medium leading-snug">
+                      {s.name}
+                    </span>
+                  </button>
+                </li>
               ))}
-            </div>
+            </ul>
           )}
         </div>
 
@@ -296,9 +331,11 @@ function TransitCard({
   return (
     <div className="glass-card glass-card-accent relative rounded-2xl border-dashed px-4 py-4">
       <div className="relative z-[1] mb-3 flex items-center gap-2 text-sm font-medium text-card-fg">
-        <TrainFront className="h-4 w-4 text-accent" />
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent/15 text-accent dark:bg-accent/25 dark:text-[#5eead4]">
+          <TrainFront className="h-4 w-4" strokeWidth={2.25} />
+        </span>
         <span className="truncate">{fromName}</span>
-        <ArrowRight className="h-3.5 w-3.5 shrink-0 text-card-muted" />
+        <ArrowRight className="h-3.5 w-3.5 shrink-0 text-foreground/60 dark:text-foreground/75" />
         <span className="truncate">{toName}</span>
       </div>
       <p className="relative z-[1] mb-4 text-xs text-card-muted">

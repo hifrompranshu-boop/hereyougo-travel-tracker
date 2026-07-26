@@ -1,6 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import type { Trip } from "@/lib/types/trip";
 
 const DATA_DIR = path.join(process.cwd(), ".data");
@@ -29,12 +30,19 @@ async function writeTrips(trips: Record<string, Trip>) {
   await fs.writeFile(TRIPS_FILE, JSON.stringify(trips, null, 2));
 }
 
-function getUserId(request: NextRequest): string | null {
-  return request.headers.get("x-user-id");
+async function requireUserId(): Promise<string | null> {
+  if (
+    !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ||
+    !process.env.CLERK_SECRET_KEY
+  ) {
+    return null;
+  }
+  const { userId } = await auth();
+  return userId;
 }
 
-export async function GET(request: NextRequest) {
-  const userId = getUserId(request);
+export async function GET() {
+  const userId = await requireUserId();
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -45,7 +53,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const userId = getUserId(request);
+  const userId = await requireUserId();
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -62,7 +70,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-  const userId = getUserId(request);
+  const userId = await requireUserId();
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -71,8 +79,8 @@ export async function PUT(request: NextRequest) {
   const trips = await readTrips();
   const existing = trips[trip.id];
 
-  if (!existing || existing.userId !== userId) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (existing && existing.userId && existing.userId !== userId) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   trip.userId = userId;
@@ -84,11 +92,11 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const userId = getUserId(request);
+  const userId = await requireUserId();
   const tripId = request.nextUrl.searchParams.get("id");
 
   if (!userId || !tripId) {
-    return NextResponse.json({ error: "Bad request" }, { status: 400 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const trips = await readTrips();
@@ -98,5 +106,5 @@ export async function DELETE(request: NextRequest) {
 
   delete trips[tripId];
   await writeTrips(trips);
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ ok: true });
 }

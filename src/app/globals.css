@@ -43,17 +43,18 @@
   --background: #0e1114;
   --background-deep: #080a0c;
   --foreground: #f2f5f7;
-  --surface: rgba(28, 34, 40, 0.72);
+  --surface: rgba(28, 34, 40, 0.9);
   --surface-solid: #161b20;
-  --surface-elevated: rgba(36, 44, 52, 0.82);
+  /* Opaque elevated panels (menus/dropdowns) — avoid see-through glass */
+  --surface-elevated: #1e262e;
   --accent: #2dd4bf;
   --accent-soft: #5eead4;
-  --accent-muted: rgba(45, 212, 191, 0.14);
-  --muted: #9aa3ad;
-  --border: rgba(242, 245, 247, 0.1);
-  --border-strong: rgba(242, 245, 247, 0.16);
+  --accent-muted: rgba(45, 212, 191, 0.18);
+  --muted: #b0b8c0;
+  --border: rgba(242, 245, 247, 0.14);
+  --border-strong: rgba(242, 245, 247, 0.22);
   --card-fg: #f2f5f7;
-  --card-muted: #a8b0b8;
+  --card-muted: #c2c9d0;
   --card-glow: rgba(94, 234, 212, 0.08);
   --glass-shine: rgba(255, 255, 255, 0.06);
   --noise-opacity: 0.07;
@@ -82,6 +83,7 @@
   --color-success: var(--success);
   --color-muted: var(--muted);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
   --color-card-fg: var(--card-fg);
   --color-card-muted: var(--card-muted);
   --font-sans: var(--font-geist-sans);
@@ -164,6 +166,19 @@
   box-shadow: var(--shadow-glass);
 }
 
+.dark .glass-card {
+  background:
+    linear-gradient(
+      155deg,
+      rgba(255, 255, 255, 0.04) 0%,
+      transparent 42%
+    ),
+    #1a2026;
+  border-color: var(--border-strong);
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+}
+
 .glass-card::after {
   content: "";
   pointer-events: none;
@@ -192,12 +207,26 @@
   box-shadow: var(--shadow-glass);
 }
 
+.dark .glass-panel {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: var(--surface-elevated);
+  border-color: var(--border-strong);
+}
+
 @utility glass-inset {
   border: 1px solid var(--border);
   background: color-mix(in srgb, var(--surface-solid) 70%, transparent);
   color: var(--card-fg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+}
+
+.dark .glass-inset {
+  background: color-mix(in srgb, var(--surface-solid) 92%, #000);
+  border-color: var(--border-strong);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 /* Soft brand-tinted glass (still brand accent, not multi-hue) */
@@ -222,7 +251,8 @@ body {
   letter-spacing: -0.01em;
 }
 
-/* Native date/time picker icons — readable in light & dark */
+/* Native date/time picker icons — readable in light & dark.
+   Keep color-scheme: light in dark mode so glyphs stay dark, then invert them. */
 input[type="date"],
 input[type="time"],
 input[type="datetime-local"] {
@@ -232,23 +262,22 @@ input[type="datetime-local"] {
 .dark input[type="date"],
 .dark input[type="time"],
 .dark input[type="datetime-local"] {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator,
 input[type="time"]::-webkit-calendar-picker-indicator,
 input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
-  opacity: 0.75;
+  opacity: 0.8;
   filter: none;
 }
 
 .dark input[type="date"]::-webkit-calendar-picker-indicator,
 .dark input[type="time"]::-webkit-calendar-picker-indicator,
 .dark input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-  /* Force light glyph on dark fields */
-  filter: invert(1) brightness(1.35);
-  opacity: 0.9;
+  filter: invert(1) brightness(1.75) contrast(1.15);
+  opacity: 1;
 }
 
 @keyframes info-glow {

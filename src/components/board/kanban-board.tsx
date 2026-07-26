@@ -463,7 +463,14 @@ export function KanbanBoard({ initialTrip, onTripChange }: KanbanBoardProps) {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <SyncBanner trip={trip} onSync={handleSync} />
+      <SyncBanner
+        trip={trip}
+        onSync={handleSync}
+        onCloudSynced={(synced) => {
+          setTrip(synced);
+          onTripChange?.(synced);
+        }}
+      />
 
       <div className="glass-panel border-b border-border/80 px-4 py-4 sm:px-6">
         <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-4">

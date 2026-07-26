@@ -1,9 +1,18 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { Compass, Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTheme } from "@/components/theme-provider";
+
+const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+
+const HeaderAuth = clerkKey
+  ? dynamic(() => import("@/components/layout/header-auth").then((m) => m.HeaderAuth), {
+      ssr: false,
+    })
+  : null;
 
 export function Header() {
   const { theme, toggleTheme } = useTheme();
@@ -35,7 +44,11 @@ export function Header() {
           >
             {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </button>
-          <span className="text-xs text-muted">Guest mode</span>
+          {HeaderAuth ? (
+            <HeaderAuth />
+          ) : (
+            <span className="text-xs text-muted">Guest mode</span>
+          )}
         </div>
       </div>
     </header>
