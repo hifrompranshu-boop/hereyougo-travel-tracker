@@ -1,0 +1,308 @@
+@import "tailwindcss";
+
+/* Class-based dark mode (toggle adds .dark on <html>) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  /* Soft pastel textured ground */
+  --background: #eef2f4;
+  --background-deep: #e4ebe8;
+  --foreground: #1a1f24;
+  --surface: rgba(255, 255, 255, 0.72);
+  --surface-solid: #f7faf9;
+  --surface-elevated: rgba(255, 255, 255, 0.88);
+  --accent: #0f766e;
+  --accent-soft: #5eead4;
+  --accent-muted: rgba(15, 118, 110, 0.12);
+  --warning: #d97706;
+  --success: #059669;
+  --muted: #5c6670;
+  --border: rgba(28, 36, 42, 0.1);
+  --border-strong: rgba(28, 36, 42, 0.16);
+  --card-fg: #1a1f24;
+  --card-muted: #5c6670;
+  --card-glow: rgba(255, 255, 255, 0.65);
+  --glass-shine: rgba(255, 255, 255, 0.55);
+  --noise-opacity: 0.045;
+  --stone-50: #f4f7f6;
+  --stone-200: #d5ddd9;
+  --stone-400: #8b959c;
+  --stone-500: #5c6670;
+  --stone-700: #3a424a;
+  --stone-900: #1a1f24;
+  --shadow-card:
+    0 1px 2px rgba(26, 31, 36, 0.04),
+    0 8px 28px rgba(26, 31, 36, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  --shadow-glass:
+    0 4px 24px rgba(26, 31, 36, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+
+.dark {
+  --background: #0e1114;
+  --background-deep: #080a0c;
+  --foreground: #f2f5f7;
+  --surface: rgba(28, 34, 40, 0.72);
+  --surface-solid: #161b20;
+  --surface-elevated: rgba(36, 44, 52, 0.82);
+  --accent: #2dd4bf;
+  --accent-soft: #5eead4;
+  --accent-muted: rgba(45, 212, 191, 0.14);
+  --muted: #9aa3ad;
+  --border: rgba(242, 245, 247, 0.1);
+  --border-strong: rgba(242, 245, 247, 0.16);
+  --card-fg: #f2f5f7;
+  --card-muted: #a8b0b8;
+  --card-glow: rgba(94, 234, 212, 0.08);
+  --glass-shine: rgba(255, 255, 255, 0.06);
+  --noise-opacity: 0.07;
+  --stone-50: #161b20;
+  --stone-200: #2a323a;
+  --stone-400: #8b959c;
+  --stone-500: #9aa3ad;
+  --stone-700: #d0d6dc;
+  --stone-900: #f2f5f7;
+  --shadow-card:
+    0 1px 2px rgba(0, 0, 0, 0.35),
+    0 12px 36px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --shadow-glass:
+    0 8px 32px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface-solid);
+  --color-accent: var(--accent);
+  --color-accent-muted: var(--accent-muted);
+  --color-warning: var(--warning);
+  --color-success: var(--success);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-card-fg: var(--card-fg);
+  --color-card-muted: var(--card-muted);
+  --font-sans: var(--font-geist-sans);
+  --font-display: var(--font-fraunces);
+  --font-mono: var(--font-geist-mono);
+  --shadow-card: var(--shadow-card);
+}
+
+@utility shadow-card {
+  box-shadow: var(--shadow-card);
+}
+
+@utility shadow-glass {
+  box-shadow: var(--shadow-glass);
+}
+
+@utility tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+@utility font-display {
+  font-family: var(--font-fraunces), ui-serif, Georgia, serif;
+  font-optical-sizing: auto;
+}
+
+/* Soft ambient canvas + film grain */
+@utility app-canvas {
+  position: relative;
+  isolation: isolate;
+  background-color: var(--background);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 10% -10%, rgba(15, 118, 110, 0.12), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 90% 0%, rgba(56, 189, 248, 0.1), transparent 50%),
+    radial-gradient(ellipse 50% 40% at 50% 100%, rgba(167, 139, 250, 0.08), transparent 55%),
+    linear-gradient(165deg, var(--background) 0%, var(--background-deep) 100%);
+  color: var(--foreground);
+}
+
+.dark .app-canvas {
+  background-image:
+    radial-gradient(ellipse 70% 45% at 15% -5%, rgba(45, 212, 191, 0.1), transparent 50%),
+    radial-gradient(ellipse 55% 40% at 95% 5%, rgba(99, 102, 241, 0.12), transparent 45%),
+    radial-gradient(ellipse 50% 35% at 40% 100%, rgba(20, 184, 166, 0.06), transparent 50%),
+    linear-gradient(165deg, var(--background) 0%, var(--background-deep) 100%);
+}
+
+.app-canvas::before {
+  content: "";
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: var(--noise-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 180px 180px;
+  mix-blend-mode: overlay;
+}
+
+.app-canvas > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Frosted glass panel / card */
+@utility glass-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background:
+    linear-gradient(
+      155deg,
+      var(--glass-shine) 0%,
+      transparent 42%
+    ),
+    var(--surface);
+  color: var(--card-fg);
+  backdrop-filter: blur(18px) saturate(1.35);
+  -webkit-backdrop-filter: blur(18px) saturate(1.35);
+  box-shadow: var(--shadow-glass);
+}
+
+.glass-card::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    120% 80% at 100% 0%,
+    var(--card-glow),
+    transparent 55%
+  );
+}
+
+.glass-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+@utility glass-panel {
+  border: 1px solid var(--border);
+  background: var(--surface-elevated);
+  color: var(--card-fg);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  box-shadow: var(--shadow-glass);
+}
+
+@utility glass-inset {
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface-solid) 70%, transparent);
+  color: var(--card-fg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Soft brand-tinted glass (still brand accent, not multi-hue) */
+@utility glass-card-accent {
+  border-color: color-mix(in srgb, var(--accent) 28%, var(--border));
+  background:
+    linear-gradient(
+      155deg,
+      color-mix(in srgb, var(--accent-soft) 22%, transparent) 0%,
+      transparent 50%
+    ),
+    var(--surface);
+  color: var(--card-fg);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+}
+
+/* Native date/time picker icons — readable in light & dark */
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"] {
+  color-scheme: light;
+}
+
+.dark input[type="date"],
+.dark input[type="time"],
+.dark input[type="datetime-local"] {
+  color-scheme: dark;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.75;
+  filter: none;
+}
+
+.dark input[type="date"]::-webkit-calendar-picker-indicator,
+.dark input[type="time"]::-webkit-calendar-picker-indicator,
+.dark input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  /* Force light glyph on dark fields */
+  filter: invert(1) brightness(1.35);
+  opacity: 0.9;
+}
+
+@keyframes info-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(45, 212, 191, 0.55), 0 0 10px rgba(45, 212, 191, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(45, 212, 191, 0.15), 0 0 16px rgba(45, 212, 191, 0.55);
+  }
+}
+
+.info-glow {
+  animation: info-glow 2s ease-in-out infinite;
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  letter-spacing: -0.02em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--accent) 12%, transparent) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 0.6s ease-in-out;
+}
+
+.board-scroll {
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.board-scroll > * {
+  scroll-snap-align: start;
+}
