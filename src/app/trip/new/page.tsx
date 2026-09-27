@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Header } from "@/components/layout/header";
 import { TripWizard } from "@/components/wizard/trip-wizard";
 import { saveTrip } from "@/lib/db/local";
+import { syncTripToCloud } from "@/lib/sync/cloud";
 import type { WizardFormData, Trip } from "@/lib/types/trip";
 
 export default function NewTripPage() {
@@ -34,9 +35,19 @@ export default function NewTripPage() {
         throw new Error(err.error ?? "Generation failed");
       }
 
-      const { trip } = await res.json() as { trip: Trip };
+      const { trip } = (await res.json()) as { trip: Trip };
       await saveTrip(trip);
-      router.push(`/trip/${trip.id}`);
+
+      // If signed in (Clerk session cookie), attach to account immediately
+      let next = trip;
+      try {
+        next = await syncTripToCloud(trip);
+        await saveTrip(next);
+      } catch {
+        // Guest or sync unavailable — local save is enough
+      }
+
+      router.push(`/trip/${next.id}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong");
       setGenerating(false);

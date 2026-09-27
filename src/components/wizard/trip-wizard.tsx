@@ -413,21 +413,21 @@ function PartyCounter({
         <button
           type="button"
           onClick={onDec}
-          className="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-foreground hover:bg-accent/10"
+          className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border-strong)] bg-[var(--surface-solid)] text-foreground hover:border-accent/50 hover:bg-accent/15 dark:text-white"
           aria-label={`Decrease ${label}`}
         >
-          <Minus className="h-3.5 w-3.5" />
+          <Minus className="h-3.5 w-3.5" strokeWidth={2.5} />
         </button>
-        <span className="min-w-[1.5rem] text-center text-base font-semibold tabular-nums">
+        <span className="min-w-[1.5rem] text-center text-base font-semibold tabular-nums text-card-fg">
           {value}
         </span>
         <button
           type="button"
           onClick={onInc}
-          className="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-foreground hover:bg-accent/10"
+          className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border-strong)] bg-[var(--surface-solid)] text-foreground hover:border-accent/50 hover:bg-accent/15 dark:text-white"
           aria-label={`Increase ${label}`}
         >
-          <Plus className="h-3.5 w-3.5" />
+          <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
         </button>
       </div>
     </div>

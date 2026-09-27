@@ -1,11 +1,20 @@
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { clerkMiddleware } from "@clerk/nextjs/server";
 
-// Passthrough middleware when Clerk is not configured.
-// When NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY is set, replace with clerkMiddleware from @clerk/nextjs.
-export function middleware(_request: NextRequest) {
-  return NextResponse.next();
-}
+const clerkConfigured = Boolean(
+  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY &&
+    process.env.CLERK_SECRET_KEY
+);
+
+/**
+ * When Clerk keys are set: session cookies work with auth().
+ * Guest mode stays open (option B) — routes are not force-protected.
+ */
+export default clerkConfigured
+  ? clerkMiddleware()
+  : function middleware() {
+      return NextResponse.next();
+    };
 
 export const config = {
   matcher: [

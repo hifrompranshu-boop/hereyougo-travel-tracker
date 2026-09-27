@@ -1,21 +1,29 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { Plus, Compass } from "lucide-react";
 import { Header } from "@/components/layout/header";
 import { TripCard } from "@/components/trip/trip-card";
 import { Button } from "@/components/ui/button";
-import { MergeTripsDialog } from "@/components/auth/merge-trips-dialog";
 import { getAllTrips } from "@/lib/db/local";
 import type { Trip } from "@/lib/types/trip";
 
-import { ClerkMergeEffect } from "@/components/auth/clerk-merge-effect";
+const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+
+const HomeTripsLoader = clerkKey
+  ? dynamic(() => import("@/components/auth/home-trips-loader"), { ssr: false })
+  : null;
 
 export default function HomePage() {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showMerge, setShowMerge] = useState(false);
+
+  const refreshTrips = useCallback((next: Trip[]) => {
+    setTrips(next);
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
     getAllTrips().then((t) => {
@@ -27,7 +35,7 @@ export default function HomePage() {
   return (
     <>
       <Header />
-      <ClerkMergeEffect />
+      {HomeTripsLoader && <HomeTripsLoader onTrips={refreshTrips} />}
       <main className="flex-1">
         <div className="mx-auto max-w-[1400px] px-4 py-12 sm:px-6">
           <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
@@ -37,6 +45,9 @@ export default function HomePage() {
               </h1>
               <p className="mt-2 text-muted">
                 Plan, organize, and optimize your adventures
+                {clerkKey
+                  ? " — sign up or log in to keep trips in your account"
+                  : ""}
               </p>
             </div>
             <Button asChild size="lg">
@@ -83,13 +94,6 @@ export default function HomePage() {
           )}
         </div>
       </main>
-      {showMerge && (
-        <MergeTripsDialog
-          localTrips={trips.filter((t) => !t.userId)}
-          onClose={() => setShowMerge(false)}
-          onMerged={() => setShowMerge(false)}
-        />
-      )}
     </>
   );
 }
