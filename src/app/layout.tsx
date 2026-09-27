@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Fraunces, Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "@/components/providers";
 import "./globals.css";
@@ -46,7 +47,17 @@ export default function RootLayout({
         className="app-canvas flex min-h-full flex-col font-sans text-foreground"
         suppressHydrationWarning
       >
-        <Providers>{children}</Providers>
+                <Providers>{children}</Providers>
+        <Script
+          src="/maya-widget.js"
+          strategy="afterInteractive"
+          data-maya-widget=""
+          data-phone="15551609401"
+          data-message="Hi Maya — I found you on hereyougo.me."
+          data-label="Chat with Maya"
+          data-brand="Maya"
+          data-mode="fab"
+        />
       </body>
     </html>
   );
