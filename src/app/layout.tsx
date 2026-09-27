@@ -58,7 +58,7 @@ export default function RootLayout({
           data-brand="Maya"
           data-mode="chat"
           data-accent="#25D366"
-          data-backend-base-url="https://sink-respect-horn-pacific.trycloudflare.com"
+          data-backend-base-url="https://movements-andrew-demonstration-spray.trycloudflare.com"
         />
       </body>
     </html>
