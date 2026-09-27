@@ -13,7 +13,7 @@ interface SyncBannerInnerProps {
 }
 
 export default function SyncBannerInner({ trip, onSync }: SyncBannerInnerProps) {
-  const { isSignedIn } = useAuth();
+  const { isSignedIn, isLoaded } = useAuth();
   const { user } = useUser();
   const [showMerge, setShowMerge] = useState(false);
   const [localTrips, setLocalTrips] = useState<Trip[]>([]);
@@ -31,7 +31,9 @@ export default function SyncBannerInner({ trip, onSync }: SyncBannerInnerProps) 
       <div className="border-b border-accent/20 bg-accent/5 px-4 py-2.5 text-center text-sm text-stone-600 dark:text-stone-400">
         <Cloud className="mr-1.5 inline h-4 w-4 text-accent" />
         Trip saved on this device.{" "}
-        {!isSignedIn ? (
+        {!isLoaded ? (
+          <span className="text-stone-500">Checking account…</span>
+        ) : !isSignedIn ? (
           <>
             <SignInButton mode="modal">
               <button type="button" className="font-medium text-accent hover:underline">

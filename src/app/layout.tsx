@@ -53,7 +53,7 @@ export default function RootLayout({
           strategy="afterInteractive"
           data-maya-widget=""
           data-phone="15551609401"
-          data-message="Hi Maya — I found you on hereyougo.me."
+          data-message="Hi Maya - I found you on hereyougo.me."
           data-label="Chat with Maya"
           data-brand="Maya"
           data-mode="fab"

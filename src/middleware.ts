@@ -8,10 +8,17 @@ const clerkConfigured = Boolean(
 
 /**
  * When Clerk keys are set: session cookies work with auth().
- * Guest mode stays open (option B) — routes are not force-protected.
+ * Guest mode stays open — routes are not force-protected.
+ * authorizedParties locks session auth to known Voyage origins.
  */
 export default clerkConfigured
-  ? clerkMiddleware()
+  ? clerkMiddleware({
+      authorizedParties: [
+        "https://hereyougo.me",
+        "https://www.hereyougo.me",
+        "http://localhost:3000",
+      ],
+    })
   : function middleware() {
       return NextResponse.next();
     };
