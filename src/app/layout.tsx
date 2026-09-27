@@ -56,7 +56,9 @@ export default function RootLayout({
           data-message="Hi Maya - I found you on hereyougo.me."
           data-label="Chat with Maya"
           data-brand="Maya"
-          data-mode="fab"
+          data-mode="chat"
+          data-accent="#25D366"
+          data-backend-base-url="https://sink-respect-horn-pacific.trycloudflare.com"
         />
       </body>
     </html>
