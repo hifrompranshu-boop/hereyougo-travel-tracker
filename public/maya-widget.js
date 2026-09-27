@@ -16,10 +16,12 @@
  *     data-label="Chat with Maya"
  *     data-brand="Maya"
  *     data-mode="chat"
- *     data-backend-base-url="https://YOUR_TUNNEL"
+ *     data-backend-base-url=""   // empty → same-origin /api/maya proxy
  *     data-accent="#25D366"
  *     async></script>
  *
+ * Empty/missing data-backend-base-url uses window.location.origin + '/api/maya'
+ * (Voyage Next.js proxies to MAYA_BACKEND_URL so Cloudflare tunnel rotates without HTML changes).
  * Or: MayaWidget.init({ phone: '15551609401', mode: 'chat', backendBaseUrl: '...' });
  */
 (function (global) {
@@ -52,6 +54,16 @@
 
   function trimSlash(url) {
     return String(url || '').replace(/\/+$/, '');
+  }
+
+  /** Prefer explicit backend; else same-origin /api/maya (Next.js proxy). */
+  function resolveBackendBase(cfg) {
+    var explicit = trimSlash(cfg && cfg.backendBaseUrl);
+    if (explicit) return explicit;
+    if (typeof location !== 'undefined' && location.origin) {
+      return location.origin + '/api/maya';
+    }
+    return '';
   }
 
   function escapeHtml(s) {
@@ -288,7 +300,7 @@
 
     function startPoll(userPhone) {
       stopPoll();
-      if (!cfg.backendBaseUrl || !userPhone) return;
+      if (!resolveBackendBase(cfg) || !userPhone) return;
       pollTimer = setInterval(function () {
         if (!panel.classList.contains('open')) return;
         loadHistory(userPhone, true);
@@ -375,7 +387,7 @@
     }
 
     function loadHistory(userPhone, soft) {
-      var base = trimSlash(cfg.backendBaseUrl);
+      var base = resolveBackendBase(cfg);
       if (!base) return Promise.resolve();
       return fetch(
         base + '/public/webchat/history?phone=' + encodeURIComponent(userPhone) + '&limit=40',
@@ -437,9 +449,9 @@
         if (sending) return;
         var text = (input.value || '').trim();
         if (!text) return;
-        var base = trimSlash(cfg.backendBaseUrl);
+        var base = resolveBackendBase(cfg);
         if (!base) {
-          alert('Chat backend is not configured (data-backend-base-url). Use Open WhatsApp instead.');
+          alert('Chat backend is not configured. Use Open WhatsApp instead.');
           return;
         }
         sending = true;
